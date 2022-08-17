@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<mat-dialog-content>
+
+  <div class="example-container">
+    <div>
+      <label>Type: </label>
+      <mat-radio-group [(ngModel)]="todoType" (change)="changeType()">
+        <mat-radio-button class="checkbox" value="note">Note Only</mat-radio-button>
+        <mat-radio-button class="checkbox" value="date">Note + Date</mat-radio-button>
+        <mat-radio-button class="checkbox" value="attacment">Note + Date + Attacment</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <form [formGroup]="todoForm">
+
+      <mat-form-field class="full-width form-control" appearance="outline">
+        <mat-label>Note</mat-label>
+        <input matInput maxlength="50" placeholder="Note" formControlName="note" required>
+        <mat-error *ngFor="let validation of validationMsgs.note">
+          <mat-error class="error-message"
+            *ngIf="todoForm.get('note')?.hasError(validation.type) && (todoForm.get('note')?.dirty || todoForm.get('note')?.touched)">
+            {{validation.message}}</mat-error>
+        </mat-error>
+      </mat-form-field>
+
+
+      <mat-form-field class="full-width form-control" appearance="outline"
+        *ngIf="todoType === 'date' || todoType === 'attacment'">
+        <mat-label>Choose a date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="date">
+        <mat-hint>MM/DD/YYYY</mat-hint>
+        <mat-error *ngFor="let validation of validationMsgs.date">
+          <mat-error class="error-message"
+            *ngIf="todoForm.get('date')?.hasError(validation.type) && (todoForm.get('date')?.dirty || todoForm.get('date')?.touched)">
+            {{validation.message}}</mat-error>
+        </mat-error>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+
+      </mat-form-field>
+
+
+      <mat-form-field class="full-width form-control" appearance="outline" *ngIf="todoType === 'attacment'">
+        <mat-label>Attacment</mat-label>
+        <button mat-icon-button matPrefix (click)="fileInput.click()">
+          <mat-icon>attach_file</mat-icon>
+        </button>
+        <input type="text" readonly matInput [formControl]="display" />
+        <input type="file" multiple hidden #fileInput (change)="handleFileInput($event)"
+          accept="image/png, image/gif, image/jpeg" />
+        <mat-error>Attacment is required</mat-error>
+      </mat-form-field>
+      <img *ngIf="imageUrl" id="img" [src]="imageUrl" class="preview-image">
+
+
+    </form>
+  </div>
+
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" *ngIf="mode === 'add'" cdkFocusInitial (click)="addTodo()"
+    [disabled]="todoForm.invalid">Add</button>
+  <button mat-raised-button color="primary" *ngIf="mode === 'edit'" cdkFocusInitial (click)="editTodo()"
+    [disabled]="todoForm.invalid">Save</button>
+</mat-dialog-actions>
